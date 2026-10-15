@@ -47,15 +47,11 @@ $$
 $$
 
 **Navier–Stokes Momentum Equation**
+**Navier–Stokes Momentum Equation**
 
-$$
-\rho \left(
-\frac{\partial \mathbf{u}}{\partial t}
-+ \mathbf{u} \cdot \nabla \mathbf{u}
-\right)
-= -\nabla p + \mu \nabla^2 \mathbf{u}
-$$
-
+```math
+\rho \left( \frac{\partial \mathbf{u}}{\partial t} + (\mathbf{u} \cdot \nabla)\mathbf{u} \right) = -\nabla p + \mu \nabla^2 \mathbf{u}
+```
 where:
 - $\mathbf{u}$ is the velocity field.
 - $p$ is the pressure field.
@@ -104,6 +100,10 @@ CFD-Solver/
 ├── src/
 │   └── cfd_algo_1.cpp
 |   └── run.cpp
+|   └── plotter.py
+|   └── plot_edges.py
+|   └── plot_cfd.py
+|   └── streamline.py
 ├── docs/
 │   └── images/
 │       ├── unstructured_mesh.png
@@ -112,7 +112,6 @@ CFD-Solver/
 │       └── velocity_field.png
 ├── examples/
 ├── README.md
-└── LICENSE
 ```
 
 ## Future Work
