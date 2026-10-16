@@ -48,10 +48,10 @@ int main()
             );
             boundryConstraint.push_back(
                 {
-                    0,
-                    0,
                     1,
-                    0.0,
+                    Pin,
+                    1,
+                    Uin,
                     0.0
                 }
             );
@@ -103,8 +103,8 @@ int main()
 
         boundryConstraint.push_back(
             {
-                0,
-                0.0f,
+                1,
+                Pin,
                 1,
                 Uin,
                 0.0f
@@ -163,6 +163,62 @@ int main()
     {
         b[i].isBounNode = true;
     }
+
+    std::ifstream file("clarky.txt");
+    int NUM_INTERIOR_POINT=121;
+    float val1, val2;
+    Node *in=new Node[NUM_INTERIOR_POINT];
+    vector<pair<int,int>> interiorEdges;
+    vector<vector<float>> interiorConstraint;
+    int ctr=0;
+    float A=1e-2;
+    float wL=0.4;
+    float phi=0.2;
+    while (file >> val1 >> val2) {
+        in[ctr].posn[0]=val1;
+        in[ctr].posn[1]=val2;
+        in[ctr].isBounNode=true;
+        // in[ctr].posn[1]+=A*sin(2*M_PI*(in[ctr].posn[0]/wL)+phi);
+        ctr++;
+    }
+    file.close();
+
+    for(int i=0;i<NUM_INTERIOR_POINT;i++)
+    {
+        float theta=(10)*M_PI/180;
+        in[i].posn[0]*=3;
+        in[i].posn[1]*=3;
+        in[i].posn[0]=(cos(theta)*in[i].posn[0]+sin(theta)*in[i].posn[1]);
+        in[i].posn[1]=(-sin(theta)*in[i].posn[0]+cos(theta)*in[i].posn[1])+1;
+        interiorEdges.push_back({i,(i+1)%NUM_INTERIOR_POINT});
+        interiorConstraint.push_back({0,0,1,0,0});
+    }
+    
+    float rC=0.08;
+    float rF=0.05;
+    Mesh M;
+    M.b=b;
+    M.in=in;
+    M.numBp=NUM_BOUNDARY_POINTS;
+    M.numIp=NUM_INTERIOR_POINT;
+    M.genPoint(boundaryEdges,boundryConstraint,interiorEdges,interiorConstraint,rC,rF);
+    savePoints(M.v,M.NUM_POINT);
+    cout<<"Points generated"<<endl;
+    M.genTri();
+    cout<<M.NUM_CELL<<endl;
+    cout<<M.NUM_EDGE<<endl;
+    // M.genAdaptMesh(0.06,0.1,2);
+    CFD NS;
+    NS.m=M;
+    NS.NUM_ITER=100;
+    NS.dt=1e-2;
+    NS.solve_unstructured_NS();
+    NS.find_performance();
+    cout<<"Lift: "<<NS.Lift<<endl;
+    cout<<"Drag: "<<NS.Drag<<endl;
+    return 0;
+}
+
 
     // int NUM_INTERIOR_POINT;
     // float omega=-1.5; // 5 radians per second
@@ -251,34 +307,6 @@ int main()
     // }
     // file1.close();
 
-
-
-    std::ifstream file("NASAS2.txt");
-    float val1, val2;
-
-    int NUM_INTERIOR_POINT=97;
-    Node *in=new Node[NUM_INTERIOR_POINT];
-    vector<pair<int,int>> interiorEdges;
-    vector<vector<float>> interiorConstraint;
-    // The stream automatically skips irregular whitespace/tabs between values
-    int ctr=0;
-    while (file >> val1 >> val2) {
-        in[ctr].posn[0]=val1;
-        in[ctr].posn[1]=val2;
-        in[ctr].isBounNode=true;
-        ctr++;
-    }
-    file.close();
-
-    for(int i=0;i<NUM_INTERIOR_POINT;i++)
-    {
-        float theta=(5)*M_PI/180;
-        in[i].posn[0]=(cos(theta)*in[i].posn[0]+sin(theta)*in[i].posn[1])*4;
-        in[i].posn[1]=(-sin(theta)*in[i].posn[0]+cos(theta)*in[i].posn[1])*4+2;
-        interiorEdges.push_back({i,(i+1)%NUM_INTERIOR_POINT});
-        interiorConstraint.push_back({0,0,1,0,0});
-    }
-    
     // float R=1;
     // float c=3;
     // float thick=0.12;
@@ -325,32 +353,6 @@ int main()
     //     interiorEdges.push_back({i,(i+1)%NUM_INTERIOR_POINT});
     //     interiorConstraint.push_back({0,0,1,-omega*R*sin(theta),omega*R*cos(theta)});
     // }
-
-    float rC=0.1;
-    float rF=0.05;
-    Mesh M;
-    M.b=b;
-    M.in=in;
-    M.numBp=NUM_BOUNDARY_POINTS;
-    M.numIp=NUM_INTERIOR_POINT;
-    M.genPoint(boundaryEdges,boundryConstraint,interiorEdges,interiorConstraint,rC,rF);
-    savePoints(M.v,M.NUM_POINT);
-    cout<<"Points generated"<<endl;
-    M.genTri();
-    cout<<M.NUM_CELL<<endl;
-    cout<<M.NUM_EDGE<<endl;
-    CFD NS;
-    NS.m=M;
-    NS.NUM_ITER=100;
-    NS.dt=1e-2;
-    NS.solve_unstructured_NS();
-    NS.find_performance();
-    cout<<"Lift: "<<NS.Lift<<endl;
-    cout<<"Drag: "<<NS.Drag<<endl;
-    return 0;
-}
-
-
 
     // Node* in = new Node[54];
 

@@ -856,6 +856,7 @@ void dumpCFDResults(Cell *MC, int NUM_CELL,Edge *ME, int NUM_EDGE,string cname,s
 class Mesh{
     public:
     Node* b=nullptr;
+    vector<Edge*> bEdge,iEdge;
     int numBp=0;
     Node* in=nullptr;
     int numIp=0;
@@ -994,7 +995,7 @@ class Mesh{
             v[j]=t[j];
         }
         delete[] t;
-        vector<Edge*> bEdge;
+        // vector<Edge*> bEdge;
         auto bc=bcns.begin();
         for(auto it=bedg.begin();it!=bedg.end();++it)
         {
@@ -1029,7 +1030,7 @@ class Mesh{
         //     ie++;
         // }
 
-        vector<Edge*> iEdge;
+        // vector<Edge*> iEdge;
         auto ic=icns.begin();
         for(auto it=iedg.begin();it!=iedg.end();++it)
         {
@@ -1121,6 +1122,77 @@ class Mesh{
         // shuffle(v,v+NUM_POINT,g);
     }
 
+    void genAdaptMesh(float hmin,float hmax,float L)
+    {
+        int ni=10;
+        for(int i=0;i<ni;i++)
+        {
+            vector<pair<float,float>> force(NUM_POINT,{0.0f,0.0f});
+            vector<float> hDist(NUM_POINT,0.0f);
+
+            for(int j=0;j<NUM_POINT;j++)
+            {
+                float mD=INFINITY;
+                for(int k=0;k<numIp;k++)
+                {
+                    float tmp;
+                    tmp=sqrt(pow(v[j].posn[0]-in[k].posn[0],2)+pow(v[j].posn[1]-in[k].posn[1],2));
+                    mD=(tmp<mD)?tmp:mD;
+                }
+                mD=(mD/L>1)?1:mD;
+                hDist[j]=hmin+(hmax-hmin)*pow(mD,1);
+            }
+
+            float K=50;
+            for(int j=0;j<NUM_EDGE;j++)
+            {
+                int n1,n2;
+                Edge *e;
+                e=&ME[j];
+                n1=e->vertex[0]-&v[0];
+                n2=e->vertex[1]-&v[0];
+                float meshSize=(hDist[n1]+hDist[n2])/2;
+                float edgLen=sqrt(pow(v[n1].posn[0]-v[n2].posn[0],2)+pow(v[n1].posn[1]-v[n2].posn[1],2));
+                if(!e->vertex[0]->isBounNode)
+                {
+                    force[n1].first+=K*(edgLen-meshSize)*(v[n2].posn[0]-v[n1].posn[0]);///edgLen;
+                    force[n1].second+=K*(edgLen-meshSize)*(v[n2].posn[1]-v[n1].posn[1]);///edgLen;
+                }
+                if(!e->vertex[1]->isBounNode)
+                {
+                    force[n2].first+=-K*(edgLen-meshSize)*(v[n2].posn[0]-v[n1].posn[0]);///edgLen;
+                    force[n2].second+=-K*(edgLen-meshSize)*(v[n2].posn[1]-v[n1].posn[1]);///edgLen;
+                }
+            }
+
+            float stepSize=1e-2;
+            vector<pair<float,float>> newPos(NUM_POINT,{0.0f,0.0f});
+            for(int j=0;j<NUM_POINT;j++)
+            {
+                newPos[j].first=v[j].posn[0]+stepSize*force[j].first;
+                newPos[j].second=v[j].posn[1]+stepSize*force[j].second;
+            }
+
+            for(int j=0;j<NUM_POINT;j++)
+            {
+                Node tmp;
+                tmp.posn[0]=newPos[j].first;
+                tmp.posn[1]=newPos[j].second;
+                if(tmp.isInside(bEdge))
+                {
+                    if(!tmp.isInside(iEdge))
+                    {
+                        v[j].posn[0]=tmp.posn[0];
+                        v[j].posn[1]=tmp.posn[1];
+                        j++;
+                    }
+                }
+            }
+
+            this->genTri();
+        }
+
+    }
 
     void genTri(){
         // Generate the Edges and Cells using the Constrained Delunay Triangulation.
