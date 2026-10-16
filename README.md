@@ -24,13 +24,13 @@ The solver is designed to support multiple objects within a computational domain
 
 | Unstructured Triangular Mesh | Multi-Object Mesh |
 |---|---|
-| ![Unstructured mesh](docs/images/unstructured_mesh.png) | ![Multi-object mesh](docs/images/multi_object_mesh.png) |
+| ![Unstructured mesh](docs/images/CLARKY_mesh.png) | ![Multi-object mesh](docs/images/Car_mesh.png) |
 
 ### Flow Field Visualization
 
 The simulation results show the pressure distribution and velocity field around the geometry.
 
-![CFD simulation showing pressure distribution and velocity field](docs/images/flow_field.png)
+![CFD simulation showing pressure distribution and velocity field](docs/images/Pickup_dynamics.png)
 
 ## Numerical Methodology
 
@@ -83,16 +83,20 @@ cd <YOUR_REPOSITORY_DIRECTORY>
 Compile the solver, adjusting the source filename and dependency paths to match your setup:
 
 ```bash
-g++ -O2 <SOURCE_FILE>.cpp \
-    -I<PATH_TO_EIGEN> \
-    -o cfd_solver
+g++ run.cpp -I./eigen-5.0.0 -o cfd
 ```
 
 Run the executable:
 
 ```bash
-./cfd_solver
+./cfd
 ```
+
+To Visualize the result:
+run ```bash python plot_edges.py ``` to visualize the Constrained Delaunay Triangulated Mesh.
+run ```bash python plot_cfd.py ``` to visualize the raw CFD velocity and pressure at each cell.
+run ```bash python streamline.py ``` to visualize the smoothened pressure and velocity feild round a object.
+
 ## Project Structure
 
 ```text
@@ -100,16 +104,14 @@ CFD-Solver/
 ├── src/
 │   └── cfd_algo_1.cpp
 |   └── run.cpp
-|   └── plotter.py
 |   └── plot_edges.py
 |   └── plot_cfd.py
 |   └── streamline.py
 ├── docs/
 │   └── images/
-│       ├── unstructured_mesh.png
-│       ├── multi_object_mesh.png
-│       ├── pressure_field.png
-│       └── velocity_field.png
+│       ├── CLARKY_mesh.png
+│       ├── Car_mesh.png
+│       ├── Pickup_dynamics.png
 ├── examples/
 ├── README.md
 ```
