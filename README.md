@@ -30,7 +30,7 @@ The solver is designed to support multiple objects within a computational domain
 
 The simulation results show the pressure distribution and velocity field around the geometry.
 
-![CFD simulation showing pressure distribution and velocity field](docs/images/Pickup_dynamics.png)
+![CFD simulation showing pressure distribution and velocity field](docs/images/Pickup_Dynamics.png)
 
 ## Numerical Methodology
 
@@ -75,11 +75,6 @@ Eigen is used for matrix and vector operations and solving the linear systems ar
 
 Clone the repository:
 
-```bash
-git clone <YOUR_REPOSITORY_URL>
-cd <YOUR_REPOSITORY_DIRECTORY>
-```
-
 Compile the solver, adjusting the source filename and dependency paths to match your setup:
 
 ```bash
@@ -111,7 +106,7 @@ CFD-Solver/
 │   └── images/
 │       ├── CLARKY_mesh.png
 │       ├── Car_mesh.png
-│       ├── Pickup_dynamics.png
+│       ├── Pickup_Dynamics.png
 ├── examples/
 ├── README.md
 ```
