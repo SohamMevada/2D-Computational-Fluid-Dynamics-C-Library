@@ -69,7 +69,7 @@ Eigen is used for matrix and vector operations and solving the linear systems ar
 
 - C++ compiler
 - [Eigen](https://eigen.tuxfamily.org/)
-- `tph_poisson` for Poisson-disc sampling
+- [tph_poisson](https://github.com/thinks/tph_poisson.git) for Poisson-disc sampling (You will only need the include/thinks folder from it.)
 
 ## Getting Started
 
